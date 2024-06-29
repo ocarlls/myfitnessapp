@@ -1,20 +1,19 @@
 package com.ms.user.models;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
-import java.io.Serializable;
-import java.util.UUID;
-@Data
 @Entity
 @Table(name = "users")
-public class User implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class User {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private UUID id;
-    private String login;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+    private String name;
     private String email;
     private String password;
 }
