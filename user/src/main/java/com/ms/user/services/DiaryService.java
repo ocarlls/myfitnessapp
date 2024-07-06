@@ -21,10 +21,10 @@ public class DiaryService {
     private FoodEntryRepository foodEntryRepository;
 
     @Autowired
-    private FoodServiceClient foodServiceClient;
+    private FoodClientService foodClientService;
 
-    public void addFoodEntry(Long diaryId, FoodEntry foodEntry) {
-        Diary diary = diaryRepository.findById(diaryId).orElseThrow(() -> new RuntimeException("Diary not found"));
+    public void addFoodEntry(String diaryId, FoodEntry foodEntry) {
+        Diary diary = diaryRepository.findById(UUID.fromString(diaryId)).orElseThrow(() -> new RuntimeException("Diary not found"));
         foodEntry.setDiary(diary);
         foodEntryRepository.save(foodEntry);
         updateDiaryTotals(diary);
@@ -37,7 +37,7 @@ public class DiaryService {
         int totalFats = 0;
 
         for (FoodEntry entry : diary.getFoodEntries()) {
-            Food food = foodServiceClient.getFoodById(entry.getFoodId());
+            Food food = foodClientService.getFoodById(String.valueOf(entry.getFoodId()));
             totalCalories += food.getCalories() * entry.getQuantity();
             totalProtein += food.getProtein() * entry.getQuantity();
             totalCarbs += food.getCarbs() * entry.getQuantity();

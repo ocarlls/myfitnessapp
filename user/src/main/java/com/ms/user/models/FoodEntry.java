@@ -2,12 +2,13 @@ package com.ms.user.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 @Entity
 public class FoodEntry {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Id@GeneratedValue
+    private UUID id;
 
     private Long foodId;
 
