@@ -11,7 +11,8 @@ import java.util.UUID;
 @Data
 @Entity
 public class Diary {
-    @Id@GeneratedValue
+    @Id
+    @GeneratedValue
     private UUID id;
 
     private LocalDate date;
@@ -20,11 +21,11 @@ public class Diary {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<FoodEntry> foodEntries = new ArrayList<>();
 
-    private int totalCalories;
-    private int totalProtein;
-    private int totalCarbs;
-    private int totalFats;
+    private float totalCalories;
+    private float totalProtein;
+    private float totalCarbs;
+    private float totalFats;
 }
