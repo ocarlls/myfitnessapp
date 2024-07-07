@@ -1,7 +1,7 @@
 package com.ms.user.services;
 
 import com.ms.user.models.Diary;
-import com.ms.user.models.Food;
+//import com.ms.user.models.FoodResponse;
 import com.ms.user.models.FoodEntry;
 import com.ms.user.repositories.DiaryRepository;
 import com.ms.user.repositories.FoodEntryRepository;
@@ -20,9 +20,6 @@ public class DiaryService {
     @Autowired
     private FoodEntryRepository foodEntryRepository;
 
-    @Autowired
-    private FoodClientService foodClientService;
-
     public void addFoodEntry(String diaryId, FoodEntry foodEntry) {
         Diary diary = diaryRepository.findById(UUID.fromString(diaryId)).orElseThrow(() -> new RuntimeException("Diary not found"));
         foodEntry.setDiary(diary);
@@ -37,11 +34,7 @@ public class DiaryService {
         int totalFats = 0;
 
         for (FoodEntry entry : diary.getFoodEntries()) {
-            Food food = foodClientService.getFoodById(String.valueOf(entry.getFoodId()));
-            totalCalories += food.getCalories() * entry.getQuantity();
-            totalProtein += food.getProtein() * entry.getQuantity();
-            totalCarbs += food.getCarbs() * entry.getQuantity();
-            totalFats += food.getFats() * entry.getQuantity();
+
         }
 
         diary.setTotalCalories(totalCalories);
