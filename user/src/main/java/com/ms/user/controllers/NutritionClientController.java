@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/food")
-public class NutritionController {
+public class NutritionClientController {
 
     @Autowired
     private NutritionService nutritionService;
