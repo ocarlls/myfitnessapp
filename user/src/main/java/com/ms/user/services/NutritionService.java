@@ -1,4 +1,5 @@
 package com.ms.user.services;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ms.user.models.FoodResponse;
 import com.ms.user.models.FoodSearchResponse;
@@ -9,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NutritionService {
@@ -20,7 +22,9 @@ public class NutritionService {
     @Autowired
     public NutritionService(OAuthClientService oAuthService, ObjectMapper objectMapper) {
         this.oAuthService = oAuthService;
-        this.webClient = WebClient.builder().build();
+        this.webClient = WebClient.builder()
+                .baseUrl("https://platform.fatsecret.com/rest/server.api")
+                .build();
         this.objectMapper = objectMapper;
     }
 
@@ -28,7 +32,7 @@ public class NutritionService {
         return oAuthService.getAccessToken()
                 .flatMap(token ->
                         webClient.get()
-                                .uri("https://platform.fatsecret.com/rest/server.api?method=food.get.v2&food_id=" + foodId + "&format=json")
+                                .uri("?method=food.get.v2&food_id=" + foodId + "&format=json")
                                 .headers(headers -> headers.setBearerAuth(token))
                                 .retrieve()
                                 .bodyToMono(String.class)
@@ -36,15 +40,13 @@ public class NutritionService {
                 .flatMap(response -> {
                     try {
                         FoodResponse foodResponse = objectMapper.readValue(response, FoodResponse.class);
-                        Serving servingGrams = foodResponse.getFood().getServings().getServing().stream()
-                                .filter(serving -> "g".equals(serving.getMeasurementDescription()))
-                                .findFirst()
-                                .orElseThrow(() -> new RuntimeException("Serving not found"));
-
-                        foodResponse.getFood().getServings().setServing(List.of(servingGrams));
+                        List<Serving> servingGrams = foodResponse.getFood().getServings().getServing().stream()
+                                .filter(serving -> "g".equals(serving.getMetricServingUnit()))
+                                .collect(Collectors.toList());
+                        foodResponse.getFood().getServings().setServing(servingGrams);
                         return Mono.just(foodResponse);
-                    } catch (Exception e) {
-                        return Mono.error(new RuntimeException("Erro ao desserializar a resposta", e));
+                    } catch (RuntimeException | JsonProcessingException e) {
+                        return Mono.error(e);
                     }
                 });
     }
@@ -53,7 +55,7 @@ public class NutritionService {
         return oAuthService.getAccessToken()
                 .flatMap(token ->
                         webClient.get()
-                                .uri("https://platform.fatsecret.com/rest/server.api?method=foods.search&search_expression=" + query + "&format=json")
+                                .uri("?method=foods.search&search_expression=" + query + "&format=json")
                                 .headers(headers -> headers.setBearerAuth(token))
                                 .retrieve()
                                 .bodyToMono(String.class)
